@@ -1,11 +1,13 @@
 // SemesterPage.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function SemesterPage() {
   const { semester } = useParams();
   const [pdfs, setPdfs] = useState([]);
+  const navigate = useNavigate();
 
   const getPdfsForSemester = async () => {
     try {
@@ -28,19 +30,23 @@ function SemesterPage() {
   }, {});
 
   return (
-    <div>
+    <div className="container mt-5">
       <h2>PDFs for Semester {semester}</h2>
-      <Link to="/admin"><button>Upload</button></Link>
-      <div className="pdf-list">
+      <button className="btn btn-secondary mt-3" onClick={() => navigate("/")}>
+        Back
+      </button>
+      <div className="pdf-list mt-5">
         {Object.keys(groupedBySubject).map((subject) => (
           <div key={subject}>
             <h3>{subject}</h3>
             {groupedBySubject[subject].map((pdf) => (
-              <div key={pdf._id}>
-                <h4>Title: {pdf.title}</h4>
-                <button onClick={() => window.open(`http://localhost:5000/files/${pdf.pdf}`, "_blank")}>
-                  View PDF
-                </button>
+              <div key={pdf._id} className="card mb-3">
+                <div className="card-body">
+                  <h5 className="card-title">Title: {pdf.title}</h5>
+                  <button className="btn btn-primary" onClick={() => window.open(`http://localhost:5000/files/${pdf.pdf}`, "_blank")}>
+                    View PDF
+                  </button>
+                </div>
               </div>
             ))}
           </div>

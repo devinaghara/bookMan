@@ -1,12 +1,15 @@
 // AdminPage.js
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function AdminPage() {
   const [title, setTitle] = useState("");
   const [file, setFile] = useState(null);
   const [sem, setSem] = useState("");
   const [subject, setSubject] = useState("");
+  const navigate = useNavigate();
 
   const submitImage = async (e) => {
     e.preventDefault();
@@ -37,8 +40,11 @@ function AdminPage() {
   };
 
   return (
-    <div className="admin-page">
-      <form className="formStyle w-100 d-flex flex-column gap-3" onSubmit={submitImage}>
+    <div className="container mt-5">
+      <button className="btn btn-secondary mb-3" onClick={() => navigate("/")}>
+        Back
+      </button>
+      <form className="formStyle" onSubmit={submitImage}>
         <h4>Upload PDF</h4>
         <input
           type="text"
@@ -50,14 +56,14 @@ function AdminPage() {
         />
         <input
           type="file"
-          className="form-control"
+          className="form-control mt-3"
           accept="application/pdf"
           required
           onChange={(e) => setFile(e.target.files[0])}
         />
         <input
           type="text"
-          className="form-control"
+          className="form-control mt-3"
           placeholder="Semester"
           required
           value={sem}
@@ -65,13 +71,13 @@ function AdminPage() {
         />
         <input
           type="text"
-          className="form-control"
+          className="form-control mt-3"
           placeholder="Subject"
           required
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
         />
-        <button className="btn btn-primary" type="submit">
+        <button className="btn btn-primary mt-3" type="submit">
           Submit
         </button>
       </form>

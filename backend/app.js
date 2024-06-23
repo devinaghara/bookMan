@@ -1,75 +1,54 @@
-// app.js (Backend)
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
-const path = require("path");
 app.use(express.json());
 app.use(cors());
 app.use("/files", express.static("files"));
 
 // MongoDB connection
-const mongoUrl = "mongodb://localhost:27017";
-mongoose.connect(mongoUrl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect("mongodb://localhost:27017", { useNewUrlParser: true })
   .then(() => console.log("Connected to database"))
-  .catch((e) => console.log(e));
+  .catch(e => console.log(e));
 
-// Multer configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./files");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + file.originalname;
-    cb(null, uniqueSuffix);
-  },
-});
-
-const upload = multer({ storage: storage });
-
-// PDF Schema
+// Define the PDF schema
 const pdfSchema = new mongoose.Schema({
   title: String,
   pdf: String,
   sem: String,
-  subject: String,
+  subject: String
 });
+const PdfDetails = mongoose.model("PdfDetails", pdfSchema);
 
-const Pdf = mongoose.model("Pdf", pdfSchema);
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "./files"),
+  filename: (req, file, cb) => cb(null, Date.now() + file.originalname)
+});
+const upload = multer({ storage: storage });
 
-// Upload PDF
+// Route for uploading files
 app.post("/upload-files", upload.single("file"), async (req, res) => {
   const { title, sem, subject } = req.body;
-  const pdf = req.file.filename;
+  const fileName = req.file.filename;
   try {
-    const newPdf = new Pdf({ title, pdf, sem, subject });
-    await newPdf.save();
+    await PdfDetails.create({ title, pdf: fileName, sem, subject });
     res.send({ status: "ok" });
   } catch (error) {
-    res.send({ status: error });
+    res.json({ status: error });
   }
 });
 
-// Get PDFs for a specific semester
+// Route for fetching files by semester
 app.get("/get-files/:semester", async (req, res) => {
   const { semester } = req.params;
   try {
-    const data = await Pdf.find({ sem: semester });
+    const data = await PdfDetails.find({ sem: semester });
     res.send({ status: "ok", data });
   } catch (error) {
-    res.send({ status: error });
+    res.json({ status: error });
   }
 });
 
-// Basic route
-app.get("/", (req, res) => {
-  res.send("Success!!!!!!");
-});
-
-app.listen(5000, () => {
-  console.log("Server Started");
-});
+app.listen(5000, () => console.log("Server started on port 5000"));
